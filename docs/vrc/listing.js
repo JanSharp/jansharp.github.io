@@ -22,6 +22,8 @@ const getJson = (url, callback) => {
   request.send();
 };
 
+const repoUrlRegex = new RegExp("^https://github\.com/[^/]+/[^/]+");
+
 let listing;
 let latestVersions;
 let initialized = false;
@@ -59,7 +61,7 @@ const loadListing = () => {
       tr.className = "packageEntry";
       makeElem(tr, "td", td => {
         makeElem(td, "a", a => {
-          a.setAttribute("href", latestInfo.repoUrl);
+          a.setAttribute("href", packageJson.changelogUrl.match(repoUrlRegex)[0]);
           a.innerText = packageJson.displayName;
         });
       });
