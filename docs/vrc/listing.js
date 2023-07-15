@@ -98,12 +98,16 @@ const loadListing = () => {
   toggleNameSort();
 };
 
+// ?nocache=1 isn't actually like an official thing, but apparently when adding anything there,
+// like literally anything, it prevents server side caching. Which is good because I don't want to
+// be in a situation where I push an update and then I'm not sure when exactly the cache will be
+// invalidated, while I'm under pressure. Does not sound like fun.
 var startLoadListing = () => {
-  getJson(listingUrl, obj => {
+  getJson(listingUrl + "?nocache=1", obj => {
     listing = obj;
     loadListing();
   });
-  getJson(latestUrl, obj => {
+  getJson(latestUrl + "?nocache=1", obj => {
     latestVersions = obj;
     loadListing();
   });
