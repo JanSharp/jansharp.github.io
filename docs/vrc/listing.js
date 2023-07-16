@@ -135,15 +135,15 @@ const performSort = (getValue) => {
     const l = getValue(left);
     const r = getValue(right);
     if(l < r)
-      return 1 * sortDir;
-    if(l > r)
       return -1 * sortDir;
+    if(l > r)
+      return 1 * sortDir;
     return 0;
   });
 
   const tableBody = document.getElementById("tableBody");
   for (const i in entries)
-    tableBody.insertAdjacentElement("afterbegin", entries[i].rowElem);
+    tableBody.insertAdjacentElement("beforeend", entries[i].rowElem);
 };
 
 var toggleNameSort = () => {
