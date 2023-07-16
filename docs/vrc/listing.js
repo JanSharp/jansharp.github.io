@@ -1,4 +1,6 @@
 
+// NOTE: I'm no js expert nor web dev expert, take everything you see here with a grain of salt.
+
 // This is defined in the xhtml file
 var listingUrl;
 
