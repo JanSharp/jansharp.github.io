@@ -9,6 +9,81 @@ var listingUrl;
 const actualListingUrl = listingUrl + "?nocache=1";
 const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json?nocache=1";
 
+// A fake and incomplete listing and latest info set for use during development.
+const devCache = {
+  [actualListingUrl]: {
+    name: "JanSharp Dummy Packages",
+    id: "com.jansharp.dummy",
+    url: "some url",
+    author: "JanSharp",
+    packages: {
+      ["com.jansharp.dummy"]: {
+        versions: {
+          ["0.1.0"]: {
+            name: "com.jansharp.dummy",
+            version: "0.1.0",
+            description: "A wonderful package.",
+            displayName: "Dummy Package",
+            changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.1.0/CHANGELOG.md",
+          },
+        },
+      },
+      ["com.jansharp.fake-world"]: {
+        versions: {
+          ["0.2.3"]: {
+            name: "com.jansharp.fake-world",
+            version: "0.2.3",
+            description: "Imagine a world. Yea that's it. If you imagine it, it's fake. Got em.",
+            displayName: "Fake World",
+            changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.2.3/CHANGELOG.md",
+          },
+        },
+      },
+      ["com.jansharp.real-world"]: {
+        versions: {
+          ["1.0.0"]: {
+            name: "com.jansharp.real-world",
+            version: "1.0.0",
+            description: "Hi. Look around you. You are here. Right now. In the real world. "
+              + "This package does nothing, as there is nothing left to do. You are already here.",
+            displayName: "Real World",
+            changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v1.0.0/CHANGELOG.md",
+          },
+        },
+      },
+      ["com.jansharp.zzz"]: {
+        versions: {
+          ["0.1.0"]: {
+            name: "com.jansharp.zzz",
+            version: "0.1.0",
+            description: "zzz... oh so sleepy... zzz...",
+            displayName: "ZZZzzz",
+            changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.1.0/CHANGELOG.md",
+          },
+        },
+      },
+    },
+  },
+  [latestUrl]: {
+    ["com.jansharp.dummy"]: {
+      version: "0.1.0",
+      updateDate: "2023-05-23T03:24:19+00:00",
+    },
+    ["com.jansharp.fake-world"]: {
+      version: "0.2.3",
+      updateDate: "2023-07-16T11:02:34+00:00",
+    },
+    ["com.jansharp.real-world"]: {
+      version: "1.0.0",
+      updateDate: "1999-01-01T00:00:00+00:00",
+    },
+    ["com.jansharp.zzz"]: {
+      version: "0.1.0",
+      updateDate: "2022-11-23T10:54:06+00:00",
+    },
+  },
+};
+
 const makeElem = (parent, elemName, callback) => {
   const elem = document.createElement(elemName);
   callback(elem);
@@ -17,6 +92,14 @@ const makeElem = (parent, elemName, callback) => {
 };
 
 const getJson = (url, callback) => {
+  if (devCache[url] != undefined)
+  {
+    callback(devCache[url]);
+    return;
+  }
+  console.debug("No dev cache for the url " + url);
+  return;
+
   const request = new XMLHttpRequest();
   request.onload = () => {
     callback(JSON.parse(request.responseText));
