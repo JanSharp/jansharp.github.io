@@ -43,6 +43,7 @@ const loadListing = () => {
   if (initialized || listing == undefined || latestVersions == undefined)
     return;
   initialized = true;
+  document.getElementById("loading").innerText = "";
 
   document.getElementById("listingId").innerText = listing.id;
 
