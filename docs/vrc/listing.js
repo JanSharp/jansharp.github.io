@@ -9,6 +9,8 @@ var listingUrl;
 const actualListingUrl = listingUrl + "?nocache=1";
 const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json?nocache=1";
 
+// NOTE: Revert the commit 3eb271fc1509c2e8d9d69b2787ea35b5b5a49b5f for a fake listing for dev.
+
 const makeElem = (parent, elemName, callback) => {
   const elem = document.createElement(elemName);
   callback(elem);
