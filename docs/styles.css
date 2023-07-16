@@ -50,6 +50,10 @@ td.description {
   white-space: inherit;
 }
 
+.sortButton {
+  cursor: pointer;
+}
+
 .sortButton:hover {
   background-color: #444444;
 }
