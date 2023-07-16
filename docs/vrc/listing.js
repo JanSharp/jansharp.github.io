@@ -34,7 +34,7 @@ const loadListing = () => {
     return;
   initialized = true;
 
-  document.getElementById("internalName").innerText = listing.id;
+  document.getElementById("listingId").innerText = listing.id;
 
   const tableBody = document.getElementById("tableBody");
   let i = 0;
