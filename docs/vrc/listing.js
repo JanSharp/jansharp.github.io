@@ -141,6 +141,8 @@ const loadListing = () => {
     const entry = {
       initialIndex: i,
       name: packageJson.displayName,
+      description: packageJson.description,
+      id: packageJson.name,
       updatedOn: dateStr,
     };
     entries[i] = entry;
@@ -189,7 +191,11 @@ const loadListing = () => {
   toggleNameSort();
 };
 
+let initSorting;
+
 var startLoadListing = () => {
+  initSorting();
+
   getJson(actualListingUrl, obj => {
     listing = obj;
     loadListing();
@@ -200,55 +206,80 @@ var startLoadListing = () => {
   });
 };
 
-let lastSortWasName = false;
-let lastSortWasUpdatedOn = false;
-let sortDir = 1;
+let nameHeader;
+let descriptionHeader;
+let idHeader;
+let updatedOnHeader;
+
+let nameHeaderText;
+let descriptionHeaderText;
+let idHeaderText;
+let updatedOnHeaderText;
+
+initSorting = () => {
+  nameHeader = document.getElementById("nameHeader");
+  descriptionHeader = document.getElementById("descriptionHeader");
+  idHeader = document.getElementById("idHeader");
+  updatedOnHeader = document.getElementById("updatedOnHeader");
+
+  nameHeaderText = nameHeader.innerText;
+  descriptionHeaderText = descriptionHeader.innerText;
+  idHeaderText = idHeader.innerText;
+  updatedOnHeaderText = updatedOnHeader.innerText;
+};
+
+let lastSortColumn;
+let sortDir;
 
 const up = "▲";
 const down = "▼";
 const line = "━";
 
 const updateTitles = () => {
-  document.getElementById("nameHeader").innerText
-    = "Name " + (lastSortWasName ? (sortDir == 1 ? up : down) : line);
-  document.getElementById("updatedOnHeader").innerText
-    = "Updated On " + (lastSortWasUpdatedOn ? (sortDir == 1 ? up : down) : line);
+  nameHeader.innerText = nameHeaderText + " "
+    + (lastSortColumn == "name" ? (sortDir == 1 ? up : down) : line);
+  descriptionHeader.innerText = descriptionHeaderText + " "
+    + (lastSortColumn == "description" ? (sortDir == 1 ? up : down) : line);
+  idHeader.innerText = idHeaderText + " "
+    + (lastSortColumn == "id" ? (sortDir == 1 ? up : down) : line);
+  updatedOnHeader.innerText = updatedOnHeaderText + " "
+    + (lastSortColumn == "updatedOn" ? (sortDir == 1 ? up : down) : line);
 };
 
-const performSort = (getValue) => {
+const performSort = (columnName, initialSortDir) => {
+  if (!initialized)
+    return;
+
+  sortDir = lastSortColumn == columnName ? -sortDir : initialSortDir;
+  lastSortColumn = columnName;
+
   entries.sort((left, right) => {
-    const l = getValue(left);
-    const r = getValue(right);
-    if(l < r)
+    const l = left[columnName];
+    const r = right[columnName];
+    if (l < r)
       return -1 * sortDir;
-    if(l > r)
+    if (l > r)
       return 1 * sortDir;
+
+    // Use name as the fallback.
+    const lName = left.name;
+    const rName = right.name;
+    if (lName < rName)
+      return -1 * sortDir;
+    if (lName > rName)
+      return 1 * sortDir;
+
     return 0;
   });
 
   const tableBody = document.getElementById("tableBody");
   for (const i in entries)
     tableBody.insertAdjacentElement("beforeend", entries[i].rowElem);
-};
 
-var toggleNameSort = () => {
-  if (!initialized)
-    return;
-
-  sortDir = lastSortWasName ? -sortDir : 1;
-  performSort(entry => entry.name);
-  lastSortWasUpdatedOn = false;
-  lastSortWasName = true;
   updateTitles();
 };
 
-var toggleUpdatedOnSort = () => {
-  if (!initialized)
-    return;
-
-  sortDir = lastSortWasUpdatedOn ? -sortDir : 1;
-  performSort(entry => entry.updatedOn);
-  lastSortWasName = false;
-  lastSortWasUpdatedOn = true;
-  updateTitles();
-};
+var toggleNameSort = () => performSort("name", 1);
+var toggleDescriptionSort = () => performSort("description", 1);
+var toggleIdSort = () => performSort("id", 1);
+var toggleUpdatedOnSort = () => performSort("updatedOn", -1);

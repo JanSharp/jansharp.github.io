@@ -34,15 +34,9 @@
       <table>
         <thead>
           <tr>
-            <th
-              class="sortButton"
-              id="nameHeader"
-              onclick="toggleNameSort();"
-            >
-              Name -
-            </th>
-            <th>Description</th>
-            <th>Id</th>
+            <th class="sortButton" id="nameHeader" onclick="toggleNameSort();">Name</th>
+            <th class="sortButton" id="descriptionHeader" onclick="toggleDescriptionSort();">Description</th>
+            <th class="sortButton" id="idHeader" onclick="toggleIdSort();">Id</th>
             <th>Version</th>
             <th
               title="Formatted using ISO 8601, but in your local time."
@@ -50,7 +44,7 @@
               id="updatedOnHeader"
               onclick="toggleUpdatedOnSort();"
             >
-              Updated On -
+              Updated On
             </th>
             <th>Changelog</th>
           </tr>
