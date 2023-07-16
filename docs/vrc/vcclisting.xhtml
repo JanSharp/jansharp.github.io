@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <title>JanSharp Packages</title>
+    <link rel="stylesheet" href="../styles.css"/>
+    <link rel="icon" type="image/x-icon" href="../images/favicon.png"/>
+    <script>
+      var listingUrl = "https://gist.githubusercontent.com/JanSharp/a69f1861bc23acb1e1c157f715de62bc/raw/vcclisting.json"
+    </script>
+    <script src="listing.js"></script>
+  </head>
+  <body onload="startLoadListing();">
+    <div class="content">
+
+      <p><a href="../index.xhtml">Home</a></p>
+
+      <h1 class="centered">JanSharp Packages</h1>
+      <p class="centered"><code id="listingId" title="The id of the listing."></code></p>
+      <p>
+        If you are using the VCC (GUI), you can <a id="vccAdd">click here to add to VCC</a>.
+        (Or, if you prefer,
+        <a onclick="copyUrlToClipboard();" id="vccCopy">copy the listing url to clipboard</a>
+        and do it <a href="https://vcc.docs.vrchat.com/guides/community-repositories">manually</a>.)
+      </p>
+      <p>If you are using the VPM (command line tool), you can run <code id="vpmAdd"></code>
+        <a onclick="copyVPMAddToClipboard();" id="vpmCopy">copy to clipboard</a>.
+      </p>
+      <script>
+        const vccAdd = document.getElementById("vccAdd");
+        vccAdd.setAttribute("href", "vcc://vpm/addRepo?url=" + encodeURIComponent(listingUrl));
+        var copyUrlToClipboard = () => navigator.clipboard.writeText(listingUrl);
+        const vccCopy = document.getElementById("vccCopy");
+        vccCopy.setAttribute("title", listingUrl);
+
+        const command = "vpm add repo " + listingUrl;
+        const vpm = document.getElementById("vpmAdd");
+        vpm.innerText = command;
+        var copyVPMAddToClipboard = () => navigator.clipboard.writeText(command);
+        const vpmCopy = document.getElementById("vpmCopy");
+        vpmCopy.setAttribute("title", command);
+      </script>
+
+      <br/>
+
+      <table>
+        <thead>
+          <tr>
+            <th class="sortButton" id="nameHeader" onclick="toggleNameSort();">Name</th>
+            <th class="sortButton" id="descriptionHeader" onclick="toggleDescriptionSort();">Description</th>
+            <th class="sortButton" id="idHeader" onclick="toggleIdSort();">Id</th>
+            <th class="sortButton" id="versionHeader" onclick="toggleVersionSort();">Version</th>
+            <th
+              title="Formatted using ISO 8601, but in your local time."
+              class="sortButton"
+              id="updatedOnHeader"
+              onclick="toggleUpdatedOnSort();"
+            >
+              Updated On
+            </th>
+            <th>Changelog</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+
+      <p id="loading"><i>
+        Loading... The above list and the listing id are populated by script using the listing json
+        itself. If you can actually read this text then something very, very most likely went wrong.
+        Try again maybe once or twice. Press F12 and check the console if there's no error message
+        below.
+      </i></p>
+
+      <p id="errorOutput"></p>
+
+      <noscript>
+        The list of packages above is populated by script, but if you don't care about what packages
+        are included in this listing you can also just follow the instructions above to add the
+        listing to the VCC packages there. Unfortunately when using vpm, there's no way to list
+        packages at the moment. I mean in general the tool is missing a lot of features, which is
+        annoying, but when not using Windows we just have to use it. (As of 2023-07-14)
+      </noscript>
+
+      <br/>
+      <br/>
+
+      <p>
+        (Note that JanSharp wrote the following paragraphs, therefore the references to "I". This
+        note mostly exists for when someone used this page as a template for their own listing.)
+      </p>
+
+      <h1 id="InstallingUpdatingAndRemoving">
+        <a href="#InstallingUpdatingAndRemoving" class="headerLink">
+          Installing, Updating and Removing
+        </a>
+      </h1>
+
+      <p>
+        <b>Important:</b> I'd highly recommend to have the Unity editor closed while messing with
+        the packages in any way. This includes <b>not</b> using the package resolver editor window
+        in Unity, as you can easily get into broken states of the project where the window itself
+        wouldn't work anymore to fix it, forcing you to close the project and do it outside anyway.
+        Additionally, said editor window, and the VPM Package Resolver in general, is very much
+        broken with custom VCC listings at the time of writing this (2023-07-16).
+      </p>
+
+      <h2 id="UsingVCC"><a href="#UsingVCC" class="headerLink">Using VCC</a></h2>
+
+      <p>
+        All I can really do is refer you to
+        <a href="https://vcc.docs.vrchat.com/guides/community-repositories">
+          this small, mostly unrelated guide
+        </a>
+        because I myself do not (and cannot) use the VCC. My hope and guess is that the GUI is self
+        explanatory, therefore there's no need for documentation. One of the few times where if
+        there's no documentation it could actually be a good thing.
+      </p>
+
+      <h2 id="UsingVPM"><a href="#UsingVPM" class="headerLink">Using VPM</a></h2>
+
+      <p>First of all, note that all of this was written on 2023-07-16.</p>
+      <p>
+        <b>Adding</b> the listing using <code>vpm</code> is already explained at the top of the
+        page.
+      </p>
+      <p>
+        To <b>update</b> packages using <code>vpm</code>, it would be great if there was a way to
+        check for updates and just update all packages in a repository. But that doesn't exist. It
+        would also be great to have an "update" command to remove the current version of a package
+        and add a new version of it to a project. But that doesn't exist.
+      </p>
+      <p>
+        So what do we do? Well quite honestly, since there's no way to check for updates, best I can
+        give you is looking at the version of the packages you have installed and comparing those
+        versions with the versions listed on this page. You can sort by Updated On to make this
+        easier. In order to find the version you've currently got installed, the easiest way is
+        probably to open the built in package manager window in Unity and look at the installed
+        packages there.
+        (Go to Window => Package Manager => wait => top left dropdown => In Project, now you can see
+        which packages you've installed an their version.)
+      </p>
+      <p>
+        Once you know if there's an update you'd like to do, you'll have to close Unity, open a
+        terminal in the root of the Unity project and then run <code>vpm add package id</code> where
+        id is the Id listed in the list of packages on this page. If you're updating a package that
+        isn't on this listing, like an official package, you can see the id ("Name") of the package
+        also in the package manager. Just click on it in the list and see the Name field.
+        Alternatively you can check the folder names in the Packages folder.
+      </p>
+      <p>
+        If running <code>vpm add package id</code> didn't actually update the package, so you still
+        have the old version after doing so, try deleting the package's folder from the Packages
+        folder in the unity project and retry. If that doesn't work, try removing the package from
+        the <code>vpm-manifest.json</code> file, also in the Packages folder (make sure it's still
+        valid json, no trailing commas) and try again.
+      </p>
+      <p>
+        To <b>remove</b> a package, wouldn't it be nice to have a remove command? ... Anyway
+        navigate to the Packages folder in the Unity project and delete the folder of the package.
+        However the VRChat Package Resolver would prompt you that a package is missing when opening
+        the project again, so before opening it again open the <code>vpm-manifest.json</code> file,
+        also in the Packages folder, and in the <code>"locked"</code> section, find the entry for
+        the package you're removing and remove it. Make sure the resulting json is valid, most
+        notably make sure there is no trailing commas.
+      </p>
+      
+      <h2 id="InstallingAnOlderVersion">
+        <a href="#InstallingAnOlderVersion" class="headerLink">Installing an older version</a>
+      </h2>
+
+      <p>
+        Ha! Funny joke. Pretty much everything with VRChat is rolling release. Installing an older
+        version is simply pain. Fun fact, at the time of writing this (2023-07-16), since the VPM
+        Package Resolver is broken with custom VCC listings, you literally can't even clone some
+        project and then have it install the the packages that were used. It just doesn't work. Also
+        don't be surprised when you click on the "Show me what's missing" button when opening Unity
+        and it doesn't open the window, and there being errors when clicking "Ok" instead. Don't
+        bother with it, just do everything yourself.
+      </p>
+      <p>
+        Still here? So you actually want to install an older version. Well I can't say if it's
+        possible using VCC, but I'd be kind of surprised if it gave you that option. I can tell you
+        though that it's truly impossible using the <code>vpm</code> command line tool. So with "do
+        it yourself", I truly mean it. Download the zip file from the github release for the version
+        you'd like to install, unpack it and put it in the Packages folder. Then manually add it to
+        the <code>vpm-manifest.json</code> file, though honestly that's just done in the hopes of
+        the system getting better in the future, so we're doing it "properly". For the record, I
+        have not tested this, it's just what would make the most sense.
+        Also if you need an older version of a package that isn't on this listing and you can't find
+        a manual download, you can manually open the listing's json file that you used when adding
+        the repo (no there's no way to use <code>vpm</code> to list the urls of the repos), search
+        through that json file and use the "url" link which is a direct download link of a package.
+        To find the listing urls, on Linux, and probably MacOS, you can look at the folder
+        <code>~/.local/share/VRChatCreatorCompanion</code>, where there's a settings file, and other
+        folders with more files, like cache files and such. I'm not saying exactly how this is layed
+        out because chances of this changing are very high. On windows, the folder may be in AppData
+        or in the user directory somewhere.
+      </p>
+
+      <h1 id="UnityKeepsPromptingMeAboutMissingPackages">
+        <a href="#UnityKeepsPromptingMeAboutMissingPackages" class="headerLink">
+          Unity keeps prompting me about missing packages
+        </a>
+      </h1>
+
+      <p>
+        Like I mentioned in the sections above, this feature is broken. It both cannot download the
+        packages when you click "OK", nor can it open the editor window. If you're using the VCC
+        I'm assuming you could install the packages from that GUI outside of Unity, or at the very
+        least install the latest version of the packages if installing the version that's listed for
+        the project doesn't work.
+      </p>
+      <p>
+        If you're using the <code>vpm</code> command line tool, then the best options you have is
+        running <code>vpm add package id</code> for each package that's installed in that project,
+        or manually finding the zip downloads for each version that's listed in the
+        <code>vpm-manifest.json</code> file, which you can do for the packages on this listing here
+        quite easily by going to the github release, but for anything else - including the official
+        packages - you'd have an easier time just installing the latest version than trying to find
+        the version that was used for that project. But if you need that specific version, see the
+        Installing an older version section above, near the end.
+      </p>
+
+      <h1 id="ShortApology"><a href="#ShortApology" class="headerLink">Short Apology</a></h1>
+
+      <p>
+        There is certainly some salt on this page, and I apologize for that. I hope that even with
+        that bit of salt I was able to help you get onto the right path to fixing the issue you've
+        encountered. I also hope that the issues that I have with the systems which I've outlined
+        above get improved over time. It is why I keep mentioning that I wrote this on 2023-07-16.
+      </p>
+
+    </div>
+  </body>
+</html>
