@@ -1,7 +1,13 @@
 
 // This is defined in the xhtml file
 var listingUrl;
-const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json";
+
+// ?nocache=1 isn't actually like an official thing, but apparently when adding anything there,
+// like literally anything, it prevents server side caching. Which is good because I don't want to
+// be in a situation where I push an update and then I'm not sure when exactly the cache will be
+// invalidated, while I'm under pressure. Does not sound like fun.
+const actualListingUrl = listingUrl + "?nocache=1";
+const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json?nocache=1";
 
 const makeElem = (parent, elemName, callback) => {
   const elem = document.createElement(elemName);
@@ -100,16 +106,12 @@ const loadListing = () => {
   toggleNameSort();
 };
 
-// ?nocache=1 isn't actually like an official thing, but apparently when adding anything there,
-// like literally anything, it prevents server side caching. Which is good because I don't want to
-// be in a situation where I push an update and then I'm not sure when exactly the cache will be
-// invalidated, while I'm under pressure. Does not sound like fun.
 var startLoadListing = () => {
-  getJson(listingUrl + "?nocache=1", obj => {
+  getJson(actualListingUrl, obj => {
     listing = obj;
     loadListing();
   });
-  getJson(latestUrl + "?nocache=1", obj => {
+  getJson(latestUrl, obj => {
     latestVersions = obj;
     loadListing();
   });
