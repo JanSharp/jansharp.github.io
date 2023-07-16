@@ -64,24 +64,29 @@ const devCache = {
       },
     },
   },
-  [latestUrl]: {
-    ["com.jansharp.dummy"]: {
-      version: "0.1.0",
-      updateDate: "2023-05-23T03:24:19+00:00",
-    },
-    ["com.jansharp.fake-world"]: {
-      version: "0.2.3",
-      updateDate: "2023-07-16T11:02:34+00:00",
-    },
-    ["com.jansharp.real-world"]: {
+  // Sorted by version in C#. That way we don't need a js semver library for sorting by version.
+  [latestUrl]: [
+    {
+      name: "com.jansharp.real-world",
       version: "1.0.0",
       updateDate: "1999-01-01T00:00:00+00:00",
     },
-    ["com.jansharp.zzz"]: {
+    {
+      name: "com.jansharp.fake-world",
+      version: "0.2.3",
+      updateDate: "2023-07-16T11:02:34+00:00",
+    },
+    {
+      name: "com.jansharp.dummy",
+      version: "0.1.0",
+      updateDate: "2023-05-23T03:24:19+00:00",
+    },
+    {
+      name: "com.jansharp.zzz",
       version: "0.1.0",
       updateDate: "2022-11-23T10:54:06+00:00",
     },
-  },
+  ],
 };
 
 const makeElem = (parent, elemName, callback) => {
@@ -127,10 +132,9 @@ const loadListing = () => {
 
   const tableBody = document.getElementById("tableBody");
   let i = 0;
-  for (const packageName in listing.packages)
+  for (const latestInfo of latestVersions)
   {
-    const latestInfo = latestVersions[packageName];
-    const packageJson = listing.packages[packageName].versions[latestInfo.version];
+    const packageJson = listing.packages[latestInfo.name].versions[latestInfo.version];
 
     const date = new Date(latestInfo.updateDate);
     const pad = v => `0${v}`.slice(-2);
@@ -209,22 +213,26 @@ var startLoadListing = () => {
 let nameHeader;
 let descriptionHeader;
 let idHeader;
+let versionHeader;
 let updatedOnHeader;
 
 let nameHeaderText;
 let descriptionHeaderText;
 let idHeaderText;
+let versionHeaderText;
 let updatedOnHeaderText;
 
 initSorting = () => {
   nameHeader = document.getElementById("nameHeader");
   descriptionHeader = document.getElementById("descriptionHeader");
   idHeader = document.getElementById("idHeader");
+  versionHeader = document.getElementById("versionHeader");
   updatedOnHeader = document.getElementById("updatedOnHeader");
 
   nameHeaderText = nameHeader.innerText;
   descriptionHeaderText = descriptionHeader.innerText;
   idHeaderText = idHeader.innerText;
+  versionHeaderText = versionHeader.innerText;
   updatedOnHeaderText = updatedOnHeader.innerText;
 };
 
@@ -242,6 +250,9 @@ const updateTitles = () => {
     + (lastSortColumn == "description" ? (sortDir == 1 ? up : down) : line);
   idHeader.innerText = idHeaderText + " "
     + (lastSortColumn == "id" ? (sortDir == 1 ? up : down) : line);
+  // NOTE: up and down are inverted because the highest version has the lowest initialIndex
+  versionHeader.innerText = versionHeaderText + " "
+    + (lastSortColumn == "initialIndex" ? (sortDir == 1 ? down : up) : line);
   updatedOnHeader.innerText = updatedOnHeaderText + " "
     + (lastSortColumn == "updatedOn" ? (sortDir == 1 ? up : down) : line);
 };
@@ -282,4 +293,5 @@ const performSort = (columnName, initialSortDir) => {
 var toggleNameSort = () => performSort("name", 1);
 var toggleDescriptionSort = () => performSort("description", 1);
 var toggleIdSort = () => performSort("id", 1);
+var toggleVersionSort = () => performSort("initialIndex", 1);
 var toggleUpdatedOnSort = () => performSort("updatedOn", -1);
