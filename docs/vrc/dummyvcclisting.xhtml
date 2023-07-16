@@ -16,8 +16,8 @@
 
       <h1 class="centered">JanSharp Dummy Packages</h1>
       <p class="centered"><code id="internalName"></code></p>
-      <p>If you are using the VCC, you can <a id="vccAdd">click here to add to VCC</a>.</p>
-      <p>If you are using the VPM, you can run <code id="vpmAdd"></code>
+      <p>If you are using the VCC (UI), you can <a id="vccAdd">click here to add to VCC</a>.</p>
+      <p>If you are using the VPM (command line tool), you can run <code id="vpmAdd"></code>
         <a onclick="copyVPMAddToClipboard();">copy to clipboard</a>.
       </p>
       <script>
@@ -28,6 +28,8 @@
         vpm.innerText = command;
         var copyVPMAddToClipboard = () => navigator.clipboard.writeText(command);
       </script>
+
+      <br/>
 
       <table>
         <thead>
