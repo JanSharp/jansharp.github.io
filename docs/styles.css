@@ -1,8 +1,17 @@
 body {
   background-color: #181a1f;
   color: #dcdcdc;
-  padding-left: 1%;
-  padding-right: 1%;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.content {
+  margin: auto;
+  max-width: 105rem;
+}
+
+.centered {
+  text-align: center;
 }
 
 table {
