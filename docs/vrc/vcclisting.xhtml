@@ -16,29 +16,6 @@
 
       <h1 class="centered">JanSharp Packages</h1>
       <p class="centered"><code id="listingId" title="The id of the listing."></code></p>
-      <p>
-        If you are using the VCC (GUI), you can <a id="vccAdd">click here to add to VCC</a>.
-        (Or, if you prefer,
-        <a onclick="copyUrlToClipboard();" id="vccCopy">copy the listing url to clipboard</a>
-        and do it <a href="https://vcc.docs.vrchat.com/guides/community-repositories">manually</a>.)
-      </p>
-      <p>If you are using the VPM (command line tool), you can run <code id="vpmAdd"></code>
-        <a onclick="copyVPMAddToClipboard();" id="vpmCopy">copy to clipboard</a>.
-      </p>
-      <script>
-        const vccAdd = document.getElementById("vccAdd");
-        vccAdd.setAttribute("href", "vcc://vpm/addRepo?url=" + encodeURIComponent(listingUrl));
-        var copyUrlToClipboard = () => navigator.clipboard.writeText(listingUrl);
-        const vccCopy = document.getElementById("vccCopy");
-        vccCopy.setAttribute("title", listingUrl);
-
-        const command = "vpm add repo " + listingUrl;
-        const vpm = document.getElementById("vpmAdd");
-        vpm.innerText = command;
-        var copyVPMAddToClipboard = () => navigator.clipboard.writeText(command);
-        const vpmCopy = document.getElementById("vpmCopy");
-        vpmCopy.setAttribute("title", command);
-      </script>
 
       <br/>
 
@@ -80,6 +57,39 @@
         annoying, but when not using Windows we just have to use it. (As of 2023-07-14)
       </noscript>
 
+      <br/>
+
+      <h1 id="AddingRepo">
+        <a href="#AddingRepo" class="headerLink">
+          Adding Repo
+        </a>
+      </h1>
+
+      <p>
+        If you are using the VCC (GUI), you can <b><a id="vccAdd">click here to add to VCC</a></b>.
+        (Or, if you prefer,
+        <a onclick="copyUrlToClipboard();" id="vccCopy">copy the listing url to clipboard</a>
+        and do it <a href="https://vcc.docs.vrchat.com/guides/community-repositories">manually</a>.)
+      </p>
+      <p>If you are using the VPM (command line tool), you can run <code id="vpmAdd"></code>
+        <a onclick="copyVPMAddToClipboard();" id="vpmCopy">copy to clipboard</a>.
+      </p>
+      <script>
+        const vccAdd = document.getElementById("vccAdd");
+        vccAdd.setAttribute("href", "vcc://vpm/addRepo?url=" + encodeURIComponent(listingUrl));
+        var copyUrlToClipboard = () => navigator.clipboard.writeText(listingUrl);
+        const vccCopy = document.getElementById("vccCopy");
+        vccCopy.setAttribute("title", listingUrl);
+
+        const command = "vpm add repo " + listingUrl;
+        const vpm = document.getElementById("vpmAdd");
+        vpm.innerText = command;
+        var copyVPMAddToClipboard = () => navigator.clipboard.writeText(command);
+        const vpmCopy = document.getElementById("vpmCopy");
+        vpmCopy.setAttribute("title", command);
+      </script>
+
+      <br/>
       <br/>
       <br/>
 
