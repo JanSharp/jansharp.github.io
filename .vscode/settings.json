@@ -3,4 +3,11 @@
     "jansharp"
   ],
   "editor.rulers": [100],
+  "Lua.workspace.library": [
+    "/home/jmpc4/dev/phobos/src",
+    "/home/jmpc4/dev/multi_process_phobos/scripts",
+  ],
+  "Lua.runtime.path": ["?.lua"],
+  "Lua.runtime.pathStrict": true,
+  "Lua.runtime.version": "Lua 5.2",
 }
