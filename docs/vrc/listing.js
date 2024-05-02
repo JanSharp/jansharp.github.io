@@ -12,6 +12,8 @@ const actualListingUrl = listingUrl + "?nocache=1";
 const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json?nocache=1";
 const externalPackagesUrl = listingUrl.substring(0, listingUrl.length - 5) + ".external.json?nocache=1";
 
+// NOTE: Revert the commit 8f994f79f804043d820b62e871957e6c30e48290 for a fake listing for dev.
+
 const makeElem = (parent, elemName, callback) => {
   const elem = document.createElement(elemName);
   callback(elem);
