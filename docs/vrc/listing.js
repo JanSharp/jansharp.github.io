@@ -10,6 +10,7 @@ var listingUrl;
 // invalidated, while I'm under pressure. Does not sound like fun.
 const actualListingUrl = listingUrl + "?nocache=1";
 const latestUrl = listingUrl.substring(0, listingUrl.length - 5) + ".latest.json?nocache=1";
+const externalPackagesUrl = listingUrl.substring(0, listingUrl.length - 5) + ".external.json?nocache=1";
 
 // A fake and incomplete listing and latest info set for use during development.
 const devCache = {
@@ -106,6 +107,10 @@ const devCache = {
       updateDate: "2022-11-23T10:54:06+00:00",
     },
   ],
+  [externalPackagesUrl]: {
+    "com.jansharp.common": "https://github.com/JanSharp/VRCJanSharpCommon",
+    "com.jansharp.lockstep": "https://github.com/JanSharp/VRCLockstep",
+  },
 };
 
 const makeElem = (parent, elemName, callback) => {
@@ -115,10 +120,15 @@ const makeElem = (parent, elemName, callback) => {
   return elem;
 };
 
-const getJson = (url, callback) => {
+const getJson = (url, callback, allowFailure) => {
   if (devCache[url] != undefined)
   {
     callback(devCache[url]);
+    return;
+  }
+  if (allowFailure)
+  {
+    callback(null);
     return;
   }
   console.debug("No dev cache for the url " + url);
@@ -129,6 +139,11 @@ const getJson = (url, callback) => {
     callback(JSON.parse(request.responseText));
   };
   request.onerror = () => {
+    if (allowFailure)
+    {
+      callback(null);
+      return;
+    }
     document.getElementById("errorOutput").innerHTML = "Unable to get listing json.";
   };
   request.open("GET", url);
@@ -139,6 +154,7 @@ const repoUrlRegex = new RegExp("^https://github\.com/[^/]+/[^/]+");
 
 let listing;
 let latestVersions;
+let externalPackages;
 let initialized = false;
 const entryUrls = {};
 const entries = [];
@@ -175,6 +191,10 @@ const generateEntryUrls = () => {
     const packageJson = listing.packages[latestInfo.name].versions[latestInfo.version];
     entryUrls[latestInfo.name] = packageJson.changelogUrl.match(repoUrlRegex)[0];
   }
+  if (externalPackages)
+    for (const packageName in externalPackages)
+      if (!entryUrls[packageName]) // Prevent overwriting internal references for consistency.
+        entryUrls[packageName] = externalPackages[packageName];
 };
 
 const setDepPackageName = (codeElem, packageName) => {
@@ -194,7 +214,7 @@ const setDepPackageName = (codeElem, packageName) => {
 };
 
 const loadListing = () => {
-  if (initialized || listing == undefined || latestVersions == undefined)
+  if (initialized || listing === undefined || latestVersions === undefined || externalPackages === undefined)
     return;
   initialized = true;
   document.getElementById("loading").innerText = "";
@@ -313,6 +333,10 @@ var startLoadListing = () => {
     latestVersions = obj;
     loadListing();
   });
+  getJson(externalPackagesUrl, obj => {
+    externalPackages = obj;
+    loadListing();
+  }, true);
 };
 
 let nameHeader;
