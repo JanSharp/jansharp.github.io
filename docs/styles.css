@@ -27,10 +27,26 @@ td {
   border-collapse: collapse;
 }
 
+tr.expansionRow:not([hidden]) > :is(th, td) {
+  border-top: 0;
+}
+
+tr:has(+ tr.expansionRow:not([hidden])) > :is(th, td) {
+  border-bottom: 0;
+}
+
 th,
 td {
   padding: 0.5em;
   text-align: left;
+}
+
+.dependenciesLabel {
+  vertical-align: text-top;
+}
+
+.dependenciesList {
+  margin: 0;
 }
 
 tbody.thinRows > tr > td {
@@ -38,7 +54,9 @@ tbody.thinRows > tr > td {
   padding-bottom: 0.15em;
 }
 
-.packageEntry:hover {
+.packageEntry:hover,
+.packageEntry:hover + .expansionRow,
+.packageEntry:has(+ .packageEntry.expansionRow:hover) {
   background-color: #222222;
 }
 

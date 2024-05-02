@@ -27,6 +27,11 @@ const devCache = {
             description: "A wonderful package.",
             displayName: "Dummy Package",
             changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.1.0/CHANGELOG.md",
+            vpmDependencies: {
+              "com.vrchat.worlds": "^3.4.x",
+              "com.jansharp.common": ">=0.1.2",
+              "com.jansharp.lockstep": ">=0.1.0",
+            },
           },
         },
       },
@@ -38,6 +43,11 @@ const devCache = {
             description: "Imagine a world. Yea that's it. If you imagine it, it's fake. Got em.",
             displayName: "Fake World",
             changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.2.3/CHANGELOG.md",
+            vpmDependencies: {
+              "com.vrchat.worlds": "^3.4.x",
+              "com.jansharp.common": ">=0.1.2",
+              "com.jansharp.dummy": ">=0.1.0",
+            },
           },
         },
       },
@@ -50,6 +60,9 @@ const devCache = {
               + "This package does nothing, as there is nothing left to do. You are already here.",
             displayName: "Real World",
             changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v1.0.0/CHANGELOG.md",
+            vpmDependencies: {
+              "com.vrchat.worlds": "^3.4.x",
+            },
           },
         },
       },
@@ -61,6 +74,10 @@ const devCache = {
             description: "zzz... oh so sleepy... zzz...",
             displayName: "ZZZzzz",
             changelogUrl: "https://github.com/JanSharp/VCCDummyPackage/blob/v0.1.0/CHANGELOG.md",
+            vpmDependencies: {
+              "com.vrchat.worlds": "^3.4.x",
+              "com.jansharp.common": ">=0.1.2",
+            },
           },
         },
       },
@@ -123,13 +140,66 @@ const repoUrlRegex = new RegExp("^https://github\.com/[^/]+/[^/]+");
 let listing;
 let latestVersions;
 let initialized = false;
+const entryUrls = {};
 const entries = [];
+
+const isHidden = elem => elem.getAttribute("hidden") != null;
+const hideElem = elem => elem.setAttribute("hidden", "hidden");
+const showElem = elem => elem.removeAttribute("hidden"); // Does not error if the attribute does not exist.
+
+const onEntryClick = (e, entry) => {
+  let target = e.target;
+  while (target.tagName === "li" || target.tagName === "ul")
+    target = target.parentElement;
+  if (!target.parentElement.classList.contains("packageEntry"))
+    return;
+  if (isHidden(entry.expansionElem))
+    showElem(entry.expansionElem);
+  else
+    hideElem(entry.expansionElem);
+};
+
+var expandAll = () => {
+  for (const entry of entries)
+    showElem(entry.expansionElem);
+};
+
+var collapseAll = () => {
+  for (const entry of entries)
+    hideElem(entry.expansionElem);
+};
+
+const generateEntryUrls = () => {
+  for (const latestInfo of latestVersions)
+  {
+    const packageJson = listing.packages[latestInfo.name].versions[latestInfo.version];
+    entryUrls[latestInfo.name] = packageJson.changelogUrl.match(repoUrlRegex)[0];
+  }
+};
+
+const setDepPackageName = (codeElem, packageName) => {
+  let url = entryUrls[packageName];
+  ///cSpell:ignore vrchat
+  if (!url && packageName.includes("com.vrchat."))
+    url = "https://vcc.docs.vrchat.com/guides/getting-started";
+  if (!url)
+  {
+    codeElem.innerText = packageName;
+    return;
+  }
+  makeElem(codeElem, "a", a => {
+    a.setAttribute("href", url);
+    a.innerText = packageName;
+  });
+};
 
 const loadListing = () => {
   if (initialized || listing == undefined || latestVersions == undefined)
     return;
   initialized = true;
   document.getElementById("loading").innerText = "";
+
+  generateEntryUrls();
 
   document.getElementById("listingId").innerText = listing.id;
 
@@ -151,15 +221,18 @@ const loadListing = () => {
       description: packageJson.description,
       id: packageJson.name,
       updatedOn: dateStr,
+      rowElem: null,
+      expansionElem: null,
     };
     entries[i] = entry;
     i++;
 
     entry.rowElem = makeElem(tableBody, "tr", tr => {
       tr.className = "packageEntry";
+      tr.onclick = (e) => onEntryClick(e, entry);
       makeElem(tr, "td", td => {
         makeElem(td, "a", a => {
-          a.setAttribute("href", packageJson.changelogUrl.match(repoUrlRegex)[0]);
+          a.setAttribute("href", entryUrls[latestInfo.name]);
           a.innerText = packageJson.displayName;
         });
       });
@@ -190,6 +263,35 @@ const loadListing = () => {
           // a.setAttribute("target", "_blank");
           // a.setAttribute("rel", "noopener noreferrer");
           a.innerText = "Changelog";
+        });
+      });
+    });
+
+    entry.expansionElem = makeElem(tableBody, "tr", tr => {
+      tr.className = "packageEntry expansionRow";
+      tr.setAttribute("hidden", "hidden");
+      tr.onclick = (e) => onEntryClick(e, entry);
+      makeElem(tr, "td", td => {
+        td.className = "dependenciesLabel";
+        makeElem(td, "b", b => {
+          b.innerText = "Dependencies:";
+        });
+      });
+      makeElem(tr, "td", td => {
+        ///cSpell:ignore colspan
+        td.setAttribute("colspan", "5");
+        makeElem(td, "ul", ul => {
+          ul.className = "dependenciesList";
+          for (const packageName in packageJson.vpmDependencies)
+            makeElem(ul, "li", li => {
+              makeElem(li, "code", code => {
+                setDepPackageName(code, packageName);
+              });
+              li.appendChild(document.createTextNode(" "));
+              makeElem(li, "code", code => {
+                code.innerText = packageJson.vpmDependencies[packageName];
+              });
+            });
         });
       });
     });
@@ -287,8 +389,11 @@ const performSort = (columnName, initialSortDir) => {
   });
 
   const tableBody = document.getElementById("tableBody");
-  for (const i in entries)
-    tableBody.insertAdjacentElement("beforeend", entries[i].rowElem);
+  for (const entry of entries)
+  {
+    tableBody.insertAdjacentElement("beforeend", entry.rowElem);
+    tableBody.insertAdjacentElement("beforeend", entry.expansionElem);
+  }
 
   updateTitles();
 };
