@@ -23,12 +23,16 @@ const makeElem = (parent, elemName, callback) => {
 
 const getJson = (url, callback, allowFailure) => {
   const request = new XMLHttpRequest();
-  request.onload = () => {
-    callback(JSON.parse(request.responseText));
-  };
-  request.onerror = () => {
+  request.onloadend = () => {
+    if (request.status == 200)
+    {
+      callback(JSON.parse(request.responseText));
+      return;
+    }
     if (allowFailure)
     {
+      console.log("If there is an error above this console message in regards to failing to load a "
+        + "resource/webpage (like it being 404), it can be ignored.")
       callback(null);
       return;
     }
