@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <title>Plastic SCM vs git for VRC Worlds</title>
+    <link rel="stylesheet" href="../styles.css"/>
+    <link rel="icon" type="image/x-icon" href="../images/favicon.png"/>
+  </head>
+  <body>
+    <div class="content">
+
+      <p><a href="../index.xhtml">Home</a></p>
+
+      <h1 class="centered">Plastic SCM vs git for VRC Worlds</h1>
+
+      <!-- https://stackoverflow.com/questions/17711146/how-to-open-link-in-a-new-tab-in-html -->
+      <!-- 'rel="noopener noreferrer"' exists to prevent a vulnerability. -->
+
+      <h2 id="overview"><a href="#overview" class="headerLink">Overview</a></h2>
+      <table>
+        <thead>
+          <th></th>
+          <th style="width: 40%;">Plastic SCM</th>
+          <th style="width: 40%;">git</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Large files</b></td>
+            <td>Built in support</td>
+            <td>Requires setting up git lfs and <code>.gitattributes</code></td>
+          </tr>
+          <tr>
+            <td><b>Unity and Prefab files</b></td>
+            <td>No special setup required</td>
+            <td>Need custom git filters plus git lfs</td>
+          </tr>
+          <tr>
+            <td><b>UdonSharp program assets</b></td>
+            <td>Cause merge conflicts</td>
+            <td>Can make git think they are just unchanging stubs using git filters</td>
+          </tr>
+          <tr>
+            <td><b>SerializedUdonPrograms</b></td>
+            <td>Cause merge conflicts</td>
+            <td>Can be put in <code>.gitignore</code> when using custom git filters</td>
+          </tr>
+          <tr>
+            <td><b>Merging unity or prefab files</b></td>
+            <td>Idk, never used it. Only saw 1 thread that suggested they cannot be merged</td>
+            <td>Unity provides a yaml merge tool, works sometimes</td>
+          </tr>
+          <tr>
+            <td><b>Merging binary or other asset files</b></td>
+            <td>Cannot be merged, must choose one of the modifications in case of conflict</td>
+            <td>Cannot be merged, must choose one of the modifications in case of conflict</td>
+          </tr>
+          <tr>
+            <td><b>Merging text files</b></td>
+            <td>Idk, never used it</td>
+            <td>Awesome</td>
+          </tr>
+          <tr>
+            <td><b>Free Storage</b></td>
+            <td><a href="https://unity.com/products/compare-plans/unity-cloud" target="_blank" rel="noopener noreferrer">Unity Cloud: 5 GB</a></td>
+            <td><a href="https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage#about-billing-for-git-large-file-storage" target="_blank" rel="noopener noreferrer">Github: 1 GiB</a> (They are mixing GB and GiB units. Annoying)</td>
+          </tr>
+          <tr>
+            <td><b>Pricing (per month)</b></td>
+            <td><a href="https://unity.com/products/compare-plans/unity-cloud" target="_blank" rel="noopener noreferrer">Unity Cloud: 0.14$ per GB</a></td>
+            <td><a href="https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage#purchasing-additional-storage-and-bandwidth" target="_blank" rel="noopener noreferrer">Github: 5$ every 50 GiB</a>, 0.10$ per GiB on average in best case</td>
+          </tr>
+          <tr>
+            <td><b>Seat Pricing (per month)</b></td>
+            <td><a href="https://docs.unity.com/ugs/en-us/manual/devops/manual/pricing/seat-management" target="_blank" rel="noopener noreferrer">3 free, then 7$/seat up to 15, then 15$/seat</a></td>
+            <td>Github: theoretically unlimited, however if <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-storage-and-bandwidth-usage" target="_blank" rel="noopener noreferrer">bandwidth per month</a><br/>exceeds storage usage, pricing increases</td>
+          </tr>
+          <tr>
+            <td><b>Max file size</b></td>
+            <td>Unlimited pretty sure</td>
+            <td>Github: <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github" target="_blank" rel="noopener noreferrer">100 MB</a> for non lfs files, <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage" target="_blank" rel="noopener noreferrer">2 GB</a> for lfs files</td>
+          </tr>
+          <tr>
+            <td><b>Unity Integration</b></td>
+            <td>Has some interaction, no idea what it is like</td>
+            <td>None that I am aware of</td>
+          </tr>
+          <tr>
+            <td><b>Windows Support</b></td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><b>Linux Support</b></td>
+            <td>Broken to unusable, last tried with Unity 2019</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><b>MacOS Support</b></td>
+            <td>Unknown</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><b>Compression support</b></td>
+            <td>Apparently yes? All I could find is one mention of it in <a href="https://www.gamedeveloper.com/programming/i-gave-plasticscm-a-try" target="_blank" rel="noopener noreferrer">this article</a></td>
+            <td>git itself yes, but most things will be in git lfs which is a <a href="#gitlfscompression">disappointing hard no</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <br/>
+
+      <p>
+        That table - while incomplete and partially opinionated - should give a general idea of the pros and cons of the 2 tools. Below is a more in depth explanation of some of the issues, in particular about:
+      </p>
+      <ul>
+        <li>Merge conflicts with generated files</li>
+        <li>Git large file storage</li>
+        <li>compression</li>
+      </ul>
+      <p>
+        Spoiler: Both systems have major downsides when working with VRChat Worlds making neither universally good.
+      </p>
+
+      <br/>
+
+      <h2 id="theproblem"><a href="#theproblem" class="headerLink">The Problem</a></h2>
+      <p>Generated data. Generally speaking it does not belong inside of source control.</p>
+      <p>
+        Unity generates <code>.meta</code> files for every folder and file in the project. These are generated, however they must be kept in source control because they contain a guid used by unity to resolve file and asset references.
+      </p>
+      <p>
+        What about other generated files, like for example all files in the <code>Assets/SerializedUdonPrograms</code> folder? Any sane programmer would tell you that these should be excluded from source control. But by excluding them, the associated <code>.meta</code> files cannot be kept in source control either, which conflicts with the prior statement that <code>.meta</code> files must be kept in source control.
+      </p>
+
+      <h3 id="theproblemwithexcluding"><a href="#theproblemwithexcluding" class="headerLink">The Problem With Excluding</a></h3>
+      <p>
+        Let's exclude <code>Assets/SerializedUdonPrograms</code> anyway. We know that this causes all unity asset references to the generated files to get broken, but what actually has those references?
+      </p>
+      <ul>
+        <li>UdonSharp program asset files (siblings of <code>.cs</code> files)</li>
+        <li>Prefabs with UdonBehaviours in them</li>
+        <li>Scenes with UdonBehaviours in them</li>
+      </ul>
+      <p>
+        This would mean that every clone of the unity project would end up with different file reference guids in all of those files. One would clone the repository, open unity, and all of those files would show up as modified. Committing these changes would seemingly make the problem go away, until anybody tries to perform any merge at which point every single one of these files would have a merge conflict - something the source control system couldn't automatically merge - because the same parts of the same files got modified both locally and remotely.
+      </p>
+
+      <h3 id="theproblemwithincluding"><a href="#theproblemwithincluding" class="headerLink">The Problem With Including</a></h3>
+      <p>
+        Ok so clearly excluding the generated <code>Assets/SerializedUdonPrograms</code> files is a bad idea. So let's not do that. This is actually what VRChat recommends, not excluding them. See <a href="https://vcc.docs.vrchat.com/vpm/source-control/" target="_blank" rel="noopener noreferrer">here</a>.
+      </p>
+      <p>
+        Remind yourself how merge conflicts happen. The same parts of the same files being modified both locally and remotely (or more generally on the 2 branches being merged).
+      </p>
+      <p>
+        So when do these serialized udon program asset files actually get modified, in other words regenerated? We don't really know, Udon just kind of does it whenever it feels like it. Sometimes when entering play mode, sometimes when making changes to a script. But one thing is for certain, a change to a script must eventually cause the associated serialized udon program asset file to get regenerated.
+      </p>
+      <p>
+        But what if the script file change gets committed without the serialized udon program asset file having been regenerated yet? What if 2 people modified the same script? In either case the generated udon asset file would be modified on multiple machines, and since these files consist of a bunch of base64 encoded text on a single line, any modification to them would result in merge conflicts.
+      </p>
+
+      <h3 id="theproblemwithudonsharpassets"><a href="#theproblemwithudonsharpassets" class="headerLink">The Problem With UdonSharp Assets</a></h3>
+      <p>
+        So far we have only talked about <code>SerializedUdonPrograms</code>, but they are not the only generated files when working with UdonSharp in a project. Every (non abstract, non static) UdonSharpBehaviour script file must have a sibling asset file which, guess what, is purely generated by UdonSharp.
+      </p>
+      <p>
+        There is no question here, they cannot be excluded from source control. Doing so would break every reference to them in prefab and scene files, making them invalid UdonBehaviour components.
+      </p>
+      <p>
+        So they must be kept in source control. And what happens with them is the exact same thing that happens with <code>SerializedUdonPrograms</code> when those are kept in source control, see last paragraph of <a href="#theproblemwithincluding">The Problem With Including</a>.
+      </p>
+
+      <br/>
+
+      <h2 id="mergeconflicts"><a href="#mergeconflicts" class="headerLink">Merge Conflicts</a></h2>
+      <p>
+        Looking at these problems, their commonality is merge conflicts. How bad are they really though?
+      </p>
+      <p>
+        Merge conflicts in <b>scene files or prefab files</b> are a serious issue. These files are large yaml (text) files which are hard to make sense of by just looking at their text contents. When presented with a merge conflict in one of these files the majority of the time the only sensible resolution is not actually merging it. Which means resolving the conflict by either using the local version of the file, or the remote (incoming) version of the file.
+      </p>
+      <p>
+        This introduces a few issues:
+      </p>
+      <ul>
+        <li>The person performing the merge may not be aware of which changes have been made on either branch, if any</li>
+        <li>One might simply miss click, picking the wrong version of the file, or overlook something</li>
+        <li>If there have actually been changes made to a file on both branches - it wasn't just auto generated changes in one branch - picking a version of the file means losing the changes from the other branch</li>
+        <li>Being prompted about merge conflicts, especially bogus ones, is tedious and annoying</li>
+      </ul>
+      <p>
+        The result is always time loss, potentially a lot of time if work has been lost.
+      </p>
+      <p>
+        Merge conflicts in <b>generated Udon and UdonSharp asset files</b> are a bit less of an issue. Just pick either the local or incoming version of the file and move on. No work can be lost. But the annoyance of being prompted about pointless merge conflicts most likely every time a merge needs to happen remains.
+      </p>
+
+      <br/>
+
+      <h2 id="plasticscm"><a href="#plasticscm" class="headerLink">Plastic SCM</a></h2>
+      <p>
+        Plastic has 2 different modes to do source control:
+      </p>
+      <ul>
+        <li>Exclusive checkout / locking workflow: Files must be checked out in order to be allowed to be modified locally. Only 1 person is allowed to checkout a file simultaneously, making this dependent on the server</li>
+        <li><a href="https://docs.plasticscm.com/technical-articles/no-checkout-workflow" target="_blank" rel="noopener noreferrer">No checkout workflow "SVN mode"</a>: Similar to other source control systems - such as git - where files simply get modified without talking to the server. Introduces the need for 3 way merges since the same file could be modified by different people simultaneously</li>
+      </ul>
+
+      <h3 id="exclusivecheckout"><a href="#exclusivecheckout" class="headerLink">Exclusive Checkout</a></h3>
+      <p>
+        Unfortunately I cannot test this, but <a href="https://support.unity.com/hc/en-us/articles/360047499831--Workflow-Lock-Exclusive-checkout-setup" target="_blank" rel="noopener noreferrer">from the looks of it</a> it can be configured such that the generated files do not require locking.
+      </p>
+      <p>
+        That said, exclusive checkout very most likely cannot be enabled for the generated Udon and UdonSharp files. If it were to be enabled and Udon wishes to regenerate them before doing a build and upload of the world, for example, but a different person has those generated files checked out on their machine, the build would fail and the only way to resolve it would be to tell the other person to stop having those files checked out. No go.
+      </p>
+      <p>
+        Using exclusive checkout for prefabs and scenes might work fine. Would probably be good to avoid having to deal with merges for those at all, but it does require caution from each person to not keep a file checked out for too long, otherwise uploading could be blocked once again since that may need to modify the list of materials/prefabs/network ids which are part of the VRCWorld component.
+      </p>
+
+      <h3 id="noexclusivecheckout"><a href="#noexclusivecheckout" class="headerLink">No Exclusive Checkout</a></h3>
+      <p>
+        So when using Plastic, exclusive checkout could not be used for generated Udon and UdonSharp asset files.
+      </p>
+      <p>
+        But then there are going to be merge conflicts. What can we do about those? Nothing. Just deal with them every time they show up.
+      </p>
+
+      <br/>
+
+      <h2 id="git"><a href="#git" class="headerLink">Git</a></h2>
+      <p>
+        There is no exclusive checkout concept in git. So one might think that all of the merge conflict problems just exist and cannot be gotten rid of just like with <a href="#noexclusivecheckout">No Exclusive Checkout</a> in Plastic SCM. However...
+      </p>
+
+      <h3 id="gitfilters"><a href="#gitfilters" class="headerLink">Git Filters</a></h3>
+      <p>
+        <a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes" target="_blank" rel="noopener noreferrer">Git filters</a> are a feature allowing scripts to modify the content of what is being committed without modifying the file in the work tree. Similarly they can modify the content of a file that is about to be checked out. These filters are called <code>clean</code> (committing) and <code>smudge</code> (checking out).
+      </p>
+      <p>
+        With this feature we can create <code>clean</code> filters which
+      </p>
+      <ul>
+        <li>Set all references to <code>Assets/SerializedUdonPrograms</code> asset files to null. Specifically references inside of scene and prefab files</li>
+        <li>Completely replace the content of UdonSharp program asset files with stubs. UdonSharp accepts these files as "new" when they get checked out and simply regenerates the actual file, without error or warning.</li>
+      </ul>
+      <p>
+        With that we have eliminated all references to <code>Assets/SerializedUdonPrograms</code> asset files. Which means, drum roll, we can exclude (<code>.gitignore</code>) the entire <code>Assets/SerializedUdonPrograms</code> folder.
+      </p>
+      <p>
+        And since the UdonSharp program asset files are all replaced with stubs from what git can see, there are also no merge conflicts in those files anymore. Git thinks these files never change.
+      </p>
+      <p>
+        Note that I have created an <a href="https://github.com/JanSharp/UdonGitFilters" target="_blank" rel="noopener noreferrer">UdonGitFilters</a> program which does all of this, however it also does compression for scene files, which is <a href="#gitlfscompression">actually very bad</a>. If one were to be interested in using this, create an issue and I'll think about some way to make compression optional - disabled by default - while keeping backwards compatibility.
+      </p>
+
+      <br/>
+
+      <h2 id="thebiggerpicture"><a href="#thebiggerpicture" class="headerLink">The Bigger Picture</a></h2>
+      <p>
+        So far I've outlined a major issue with source control when working with VRChat Worlds. Keeping our scope limited to just that, git clearly wins. It can work around these merge conflicts while Plastic SCM simply cannot. Unfortunately though there is more to source control than just this 1 issue.
+      </p>
+
+      <h3 id="gitlfs"><a href="#gitlfs" class="headerLink">Git LFS</a></h3>
+      <p>
+        <a href="https://git-lfs.com" target="_blank" rel="noopener noreferrer">Git large file storage (lfs)</a> is an extension for git in order to handle large files. But why is this even relevant?
+      </p>
+      <p>
+        The way git works is that whenever a file gets committed to git, it stores this file as an object inside the <code>.git</code> folder, so the git repository. Once a file is part of a git repository, it is going to be there forever (ignoring evil git history rewriting).
+      </p>
+      <p>
+        When cloning a git repository it is going to clone the entire repository including all history. This is one of the great things about git and its distributed nature, having all data available locally allows fast interaction with the entire repository, viewing diffs with old files, checking out files, just everything.
+      </p>
+      <p>
+        But what about binary files? <i>Large</i> binary files? Git is not made for those. It is made for text, and it also compresses older history in order to manage its size. One of the most obvious issues is that with large binary files, such as images, sound, 3d models, etc, the project size would grow quite rapidly. And to my knowledge this also makes git slow.
+      </p>
+      <p>
+        Not only that, <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#repository-size-limits" target="_blank" rel="noopener noreferrer">github recommends</a> to keep the git repository itself to under 1 GB and strongly recommends staying under 5 GB. And for individual files, github <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#file-size-limits" target="_blank" rel="noopener noreferrer">blocks files over 100 MB</a>.
+      </p>
+      <p>
+        The "solution" is to use git lfs. Git lfs also uses the <code>clean</code> and <code>smudge</code> filters, however what it does is quite intrusive. Files managed by git lfs are puts them into a separate folder inside of the git repository, and then lfs just gives git a tiny "pointer" file with an id. Git lfs can then restore files based on these ids.
+      </p>
+      <p>This makes git lfs files effectively not part of the git repository itself, git just sees pointer files.</p>
+      <p>
+        Then when cloning a project which uses git lfs it does not download all files managed by lfs, it only downloads the ones actually required to checkout the current commit.
+      </p>
+      <p>
+        Viewing diffs and merging files managed by git lfs is possible, but certainly feels clunky at times. Do not have enough experience to judge this properly.
+      </p>
+
+      <h4 id="gitlfscompression"><a href="#gitlfscompression" class="headerLink">Git LFS Compression</a></h4>
+      <p>This is the part where I lose my composure and show my genuine severe annoyance with lfs.</p>
+      <p>
+        It doesn't do compression itself. It has no option to enable compression. It has support for <b>git lfs filter extensions</b> which are an unfinished feature that's probably not used enough to get proper support. There is a bug where if you want to remove a filter extension after having used it it effectively makes old files inaccessible... or was it corrupting all affected files in the work tree. Either way, you can't use filter extensions to do compression anyway because that would require deterministic cross platform compression algorithms which don't exist and they are aware that they don't exist. And why do they require that determinism? Because for some reason they think it's important to save checksums for intermediate versions of the files as they're passing through the filters which is just insane because the purpose of clean and smudge filters is to change the file's content so restoring it as it was before is commonly literally impossible. But back to compression, from what I remember their argument for not having compression support is that git lfs is for large binary files which wouldn't compress much anyway. Which is even more insane, first of all binary files are not inherently compressed, and when it comes to unity there are large text files that have to be put into git lfs because otherwise the git repository size would explode. And guess what text files compress really well.
+      </p>
+      <p>
+        I hate it. And the worst part is that if you have files over 2 GB and they can be turned into smaller than 2 GB if they were to be compressed, then you have literally no choice but to use git filters to do compression anyway because <a href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage" target="_blank" rel="noopener noreferrer">Github limits lfs files to 2 GB</a>. But you cannot use git lfs filter extensions, you just have to make a wrapper that then passes the compressed data to git lfs post compression, and then receives compressed data from git lfs and decompresses it when checking out. This works, but remember how git lfs remembers file checksums? Well they actually do serve a purpose, which is checking if a file in the work tree has been modified by calculating the checksum of the file in the work tree and comparing it with the saved checksum that is in git. This actually makes sense, however since as mentioned before there are no deterministic cross platform compression algorithms, these files would end up showing up as modified according to git because they compressed differently. And you literally cannot do anything about it. Hard resetting the file doesn't do anything because it still has a newer modification date so git is going to check if it changed when checking the status or when doing anything with git, and it's just going to show up as modified again even though it's been reset. And then when you commit that file, sure it'll be fine for you locally because the compression algorithm is likely stable enough to have the same result on your machine, however as soon as somebody else checks out the file on their machine, it is now going to start showing up as modified for them even though they didn't change anything. And the game just repeats itself infinitely. It's horrible. And what makes it even worse is that since we are dealing with a 2+ GB file, because that's what forced us into the whole situation, even running multithreaded compression on those files takes several seconds. And it runs that when you do git status or a git add. It makes the git experience abysmally slow.
+      </p>
+      <p>
+        The solution is to not do compression. Which is still stupid because it wastes storage space. And the people implementing the features which would make it possible to do compression aren't actually using it themselves so they don't know how horrible it is. Which to be clear I can fully understand. Like if you reading this right now are one of those people, I can tell you with confidence that I understand why it's implemented the way it is. There just hasn't been anybody who's taken the time to do a proper write up of the issue in a professional matter and propose an alternative solution that actually works. And this here certainly isn't a professional writeup.
+      </p>
+
+      <h3 id="plasticscmandlargefiles"><a href="#plasticscmandlargefiles" class="headerLink">Plastic SCM and Large Files</a></h3>
+      <p>
+        So git struggles with large files, and generally doesn't like binary files all that much. Plastic SCM on the other hand does not care, they're treated just like every other file. My current guess is that plastic kind of works like git lfs does, but for every single file, but without it being a tacked on solution. Just a guess though.
+      </p>
+
+      <h4 id="gitlfscompression"><a href="#gitlfscompression" class="headerLink">Plastic SCM Compression</a></h4>
+      <p>
+        I tried to search for it and literally only found 1 mention of compression in <a href="https://www.gamedeveloper.com/programming/i-gave-plasticscm-a-try" target="_blank" rel="noopener noreferrer">this article</a>. So apparently plastic can compress files on checking in and decompress on checking out and apparently that can run out of RAM and make the tool slow when such files have been changed, even if all other changes are for smaller files. This only kind of makes sense, though I'd say there is a way to implement this without it causing a slowdown aside from actually committing the changes, since that has to do compression.
+      </p>
+
+      <br/>
+
+      <h2 id="conclusion"><a href="#conclusion" class="headerLink">Conclusion</a></h2>
+      <p>
+        There is more to discuss about source control with Unity, like how there is generated content as part of components which ultimately are in prefabs and scenes, and they are just inherently annoying to deal with. But This page has gotten long and I've described the 2 major annoyances with source control where 1 of the annoyances is an issue with Plastic SCM and the other is an issue with git. And at the end of the day neither options are universally good.
+      </p>
+      <p>
+        And then I also went over the compression issue with git lfs, which at the end of the day isn't an issue if you just don't do compression, at that point it's just a waste of storage. Which is annoying but not the end of the world. The fact that Plastic SCM supposedly gets slower the more large-ish files are unchanged is arguably more concerning, because even though with git there would also be an initial slow down, subsequent git commands would be fast because it doesn't constantly recompute which files have changed. It has a cache (with cache invalidation based on modification dates of the files pretty sure.)
+      </p>
+      <p>
+        I personally prefer using git because I don't mind going through more setup when setting up a project rather than permanently heaving to deal with pointless merge conflicts.
+      </p>
+
+    </div>
+  </body>
+</html>
