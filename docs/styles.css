@@ -81,6 +81,10 @@ td.description {
   background-color: #444444;
 }
 
+html * {
+  font-family: sans-serif;
+}
+
 code {
   padding-top: 1px;
   padding-bottom: 1px;
@@ -90,6 +94,7 @@ code {
   font-size: 90%;
   background-color: #ffffff33;
   border-radius: 5px;
+  font-family: monospace;
 }
 
 a {
